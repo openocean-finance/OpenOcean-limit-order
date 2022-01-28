@@ -1,6 +1,6 @@
-# DataSyncGateway
+# OpenOcean Limit Order
 
-DataSyncGateway using typescript && egg
+OpenOcean Limit Order using typescript && egg
 
 ## QuickStart
 
