@@ -22,7 +22,7 @@
     "clean": "ets clean"
   },
   "dependencies": {
-    "@1inch/limit-order-protocol": "^1.4.1",
+    "@1inch/limit-order-protocol": "^2.0.1",
     "axios": "^0.21.4",
     "bignumber.js": "^9.0.1",
     "egg": "^2.6.1",
