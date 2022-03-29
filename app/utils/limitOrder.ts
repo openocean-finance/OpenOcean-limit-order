@@ -67,11 +67,17 @@ export default class LimitOrder {
   }
 
   public async checkLimitOrder(params: any) {
-    const { expireTime, buyAmount, data, orderMaker } = params;
-    const { makerAsset } = data;
-    const balance = await this.getBalanceByEthers({ inTokenAddress: makerAsset, account: orderMaker, chainId });
-    if (balance < buyAmount) return `Insufficient balance, balance is ${balance}, but you want buy ${buyAmount}`;
-    if (Date.now() / 1000 > expireTime) return `timeout:  ${expireTime}`;
+    const { expireTime, remainingMakerAmount, orderMaker, makerAsset } = params;
+
+    if (remainingMakerAmount === 0) return { code: 204, error: `have done: ${remainingMakerAmount}` };
+    if (Date.now() / 1000 > expireTime) return { code: 204, error: 'timeout: ' + expireTime };
+
+    const balResult = await this.getBalanceByEthers({ inTokenAddress: makerAsset, account: orderMaker, chainId });
+    if (balResult.code === 200) {
+      const data = balResult.data;
+      const rawBalance = data[0].raw;
+      if (rawBalance < remainingMakerAmount) return { code: 204, error: `Insufficient balance, reaing is ${remainingMakerAmount}, but orderMaker only have  ${rawBalance}` };
+    }
     return null;
   }
 
@@ -89,9 +95,8 @@ export default class LimitOrder {
     // }
     // If you're getting multiple token balances, you need to iterate data
     const [ err, result ] = await pkgReq(url + '/v1/cross/getBalance', params, { 'Content-Type': 'application/json' });
-    if (err) return 0;
-    if (result.data && result.data[0].raw) return result.data.raw;
-    return 0;
+    if (err) return err;
+    return result;
   }
 
   public async approve(amount: string, tokenAddress: string, myWallet) {
